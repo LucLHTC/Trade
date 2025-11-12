@@ -2,6 +2,10 @@
 .env
 .env.local
 
+# Personal setup files (contain API keys)
+INSTANT_SETUP.bat
+MY_SETUP.bat
+
 # Python
 __pycache__/
 *.py[cod]

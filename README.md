@@ -118,7 +118,8 @@ python setup.py
 
 1. **Clone the repository**
    ```bash
-   cd /path/to/Trade
+   git clone https://github.com/LucLHTC/Trade.git
+   cd Trade
    ```
 
 2. **Configure environment**
