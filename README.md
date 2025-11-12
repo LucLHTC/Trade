@@ -70,7 +70,15 @@ trading-system/
 
 ### ⚡ One-Click Setup (Recommended)
 
-**Windows Users:**
+**🔧 HAD SETUP PROBLEMS? USE THIS:**
+1. Install Docker Desktop and start it
+2. Get free API key: https://www.alphavantage.co/support/#api-key
+3. **Double-click `SETUP_FIX.bat`** ⭐ (Auto-fixes OneDrive & Docker issues!)
+4. Follow the prompts
+5. Wait ~30 minutes (first time only)
+6. Dashboard opens automatically! 🎉
+
+**Windows Users (Standard Setup):**
 1. Install Docker Desktop and start it
 2. Get free API key: https://www.alphavantage.co/support/#api-key
 3. **Double-click `START_SYSTEM.bat`**
@@ -83,15 +91,19 @@ trading-system/
 python setup.py
 ```
 
-📖 **Full guide:** See [QUICK_START.md](QUICK_START.md) for detailed instructions and options
+📖 **Full guides:**
+- [QUICK_START.md](QUICK_START.md) - Standard setup instructions
+- [SETUP_FIX_README.md](SETUP_FIX_README.md) - Troubleshooting & auto-fix guide
 
 **Available Setup Methods:**
-| File | Platform | Description |
-|------|----------|-------------|
-| `START_SYSTEM.bat` | Windows | Double-click to start (easiest) |
-| `STOP_SYSTEM.bat` | Windows | Double-click to stop |
-| `setup.ps1` | Windows | PowerShell script with options |
-| `setup.py` | All | Python script (cross-platform) |
+| File | Platform | Description | When To Use |
+|------|----------|-------------|-------------|
+| `SETUP_FIX.bat` ⭐ | Windows | Auto-fixes common issues | **If you had problems** |
+| `START_SYSTEM.bat` | Windows | Standard one-click setup | First-time setup |
+| `STOP_SYSTEM.bat` | Windows | Double-click to stop | Stop the system |
+| `setup-fixed.ps1` | Windows | Smart PowerShell with auto-fix | Advanced users |
+| `setup.ps1` | Windows | PowerShell script with options | Advanced users |
+| `setup.py` | All | Python script (cross-platform) | Mac/Linux |
 
 ---
 
