@@ -199,9 +199,17 @@ def setup_schedule():
     schedule.every().day.at("23:00").do(job_performance_report)
     logger.info("  ✓ Performance report: Daily at 23:00")
 
-    # Drift detection: Every 3 days at 01:00
+    # Performance degradation: Every 3 days at 01:00
     schedule.every(3).days.at("01:00").do(job_check_model_drift)
-    logger.info("  ✓ Drift detection: Every 3 days at 01:00")
+    logger.info("  ✓ Performance drift: Every 3 days at 01:00")
+
+    # Feature drift detection: Every 2 days at 02:00
+    schedule.every(2).days.at("02:00").do(job_check_drift)
+    logger.info("  ✓ Feature drift: Every 2 days at 02:00")
+
+    # Auto-retraining: Every Monday at 03:00
+    schedule.every().monday.at("03:00").do(job_auto_retrain)
+    logger.info("  ✓ Auto-retrain: Every Monday at 03:00")
 
     # System health check: Every 6 hours
     schedule.every(6).hours.do(job_system_health_check)
@@ -244,3 +252,70 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def job_check_drift():
+    """Check for model drift."""
+    logger.info("🔍 Running drift detection job...")
+
+    try:
+        from src.drift.detector import DriftDetector
+        from src.features.manager import FeatureManager
+
+        detector = DriftDetector()
+        feature_manager = FeatureManager()
+
+        # Load features
+        features_df = feature_manager.load_features(symbol="EURUSD")
+
+        if features_df.empty:
+            logger.warning("No features available for drift detection")
+            return
+
+        # Split into baseline and current
+        split_date = features_df.index.max() - pd.Timedelta(days=7)
+        baseline = features_df[features_df.index < split_date]
+        current = features_df[features_df.index >= split_date]
+
+        if baseline.empty or current.empty:
+            logger.warning("Insufficient data for drift detection")
+            return
+
+        # Detect drift
+        drift_results = detector.detect_feature_drift(baseline, current)
+
+        # Save to database
+        detector.save_drift_log(drift_results, drift_type="feature")
+
+        if drift_results["drift_detected"]:
+            logger.warning(
+                f"⚠️  Drift detected! Score: {drift_results['drift_score']:.3f}"
+            )
+        else:
+            logger.info("✅ No drift detected")
+
+    except Exception as e:
+        logger.error(f"❌ Drift detection failed: {e}", exc_info=True)
+
+
+def job_auto_retrain():
+    """Auto-retrain model if needed."""
+    logger.info("🔄 Running auto-retrain job...")
+
+    try:
+        from src.drift.retrainer import ModelRetrainer
+
+        retrainer = ModelRetrainer()
+
+        # Run auto-retrain pipeline
+        results = retrainer.auto_retrain_pipeline(symbol="EURUSD", force=False)
+
+        if results["status"] == "success":
+            logger.info("✅ Auto-retrain completed successfully")
+        elif results["status"] == "skipped":
+            logger.info(f"⏭️  Auto-retrain skipped: {results['reason']}")
+        else:
+            logger.warning(f"⚠️  Auto-retrain status: {results['status']}")
+
+    except Exception as e:
+        logger.error(f"❌ Auto-retrain failed: {e}", exc_info=True)

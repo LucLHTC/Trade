@@ -148,7 +148,7 @@ docker compose exec api pytest tests/ -v
 docker compose exec api pytest tests/test_health.py -v
 ```
 
-## 📊 Current Status: Session 6 Complete
+## 📊 Current Status: Session 7 Complete
 
 ### ✅ Session 1: Foundation
 - [x] Docker infrastructure setup
@@ -218,8 +218,19 @@ docker compose exec api pytest tests/test_health.py -v
 - [x] Plotly visualizations for all charts
 - [x] CSV download for trade history
 
-### 🚧 Coming in Future Sessions
-- [ ] **Session 7**: Drift detection & auto-retraining
+### ✅ Session 7: Drift Detection & Auto-Retraining
+- [x] Drift detector with PSI (Population Stability Index) calculation
+- [x] KS (Kolmogorov-Smirnov) statistical test for distribution comparison
+- [x] Feature drift detection across all numeric features
+- [x] Prediction drift monitoring
+- [x] Shadow model training pipeline
+- [x] A/B testing framework for model comparison
+- [x] Automatic model promotion with performance validation
+- [x] Model lifecycle management (current → shadow → archived)
+- [x] Auto-retraining trigger based on drift and performance
+- [x] Drift logging to database
+- [x] Scheduler integration (drift check every 2 days, retrain every Monday)
+- [x] Comprehensive drift detection tests (30+ test cases)
 
 ## 🛠️ Development Commands
 
@@ -278,6 +289,97 @@ DRIFT_PSI_THRESHOLD=0.25
 DRIFT_KS_PVALUE=0.01
 ```
 
+## 🔍 Drift Detection & Auto-Retraining
+
+The system includes comprehensive drift detection and automatic model retraining:
+
+### Drift Monitoring
+
+**Population Stability Index (PSI):**
+- Measures distribution shifts between baseline and current data
+- Formula: PSI = Σ[(current% - baseline%) × ln(current% / baseline%)]
+- Thresholds:
+  - PSI < 0.1: No drift
+  - PSI 0.1-0.25: Moderate drift (monitor)
+  - PSI > 0.25: Significant drift (retrain recommended)
+
+**Kolmogorov-Smirnov Test:**
+- Statistical test for distribution equality
+- p-value < 0.05 indicates significant drift
+
+### Auto-Retraining Pipeline
+
+1. **Drift Detection** (every 2 days):
+   - Compare recent 7 days vs. previous data
+   - Check all feature distributions
+   - Log results to database
+
+2. **Retraining Trigger** (every Monday):
+   - Check if drift detected (PSI > 0.20)
+   - Check if performance degraded (>15% drop)
+   - Skip if no issues detected
+
+3. **Shadow Model Training**:
+   - Train new model with latest data
+   - Evaluate on validation set
+   - Save to `models/shadow/`
+
+4. **A/B Testing**:
+   - Compare shadow vs. current model
+   - Test on recent 200 candles
+   - Require F1 improvement > 0.01
+
+5. **Model Promotion**:
+   - Archive current model with timestamp
+   - Promote shadow to current
+   - Log promotion event
+
+### Model Lifecycle
+
+```
+models/
+├── current/          # Active model in production
+├── shadow/           # Candidate model being evaluated
+└── archived/         # Historical models with timestamps
+    ├── model_20250110_120000/
+    ├── model_20250117_120000/
+    └── ...
+```
+
+### Manual Drift Check
+
+```bash
+# Check for drift manually
+docker compose exec api python -c "
+from src.drift.detector import DriftDetector
+from src.features.manager import FeatureManager
+
+detector = DriftDetector()
+manager = FeatureManager()
+
+features = manager.load_features('EURUSD')
+baseline = features.head(1000)
+current = features.tail(500)
+
+result = detector.detect_feature_drift(baseline, current)
+print(f'Drift detected: {result[\"drift_detected\"]}')
+print(f'Drift score: {result[\"drift_score\"]:.3f}')
+"
+```
+
+### Force Retraining
+
+```bash
+# Force model retraining regardless of drift
+docker compose exec api python -c "
+from src.drift.retrainer import ModelRetrainer
+
+retrainer = ModelRetrainer()
+results = retrainer.auto_retrain_pipeline(symbol='EURUSD', force=True)
+print(f'Status: {results[\"status\"]}')
+"
+```
+
 ## 🐛 Troubleshooting
 
 ### Database connection failed
@@ -317,12 +419,12 @@ docker compose restart ui
 
 ### MVP Milestones
 1. ✅ **Foundation** - Infrastructure setup
-2. ⏳ **Data Pipeline** - Acquisition & storage
-3. ⏳ **Feature Engineering** - Technical & event features
-4. ⏳ **ML Training** - Ensemble models
-5. ⏳ **Trading Logic** - Risk management & simulation
-6. ⏳ **UI Dashboard** - Visualization & monitoring
-7. ⏳ **Production** - Drift detection & automation
+2. ✅ **Data Pipeline** - Acquisition & storage
+3. ✅ **Feature Engineering** - Technical & event features
+4. ✅ **ML Training** - Ensemble models
+5. ✅ **Trading Logic** - Risk management & simulation
+6. ✅ **UI Dashboard** - Visualization & monitoring
+7. ✅ **Production** - Drift detection & automation
 
 ### Future Enhancements
 - [ ] Multi-asset support (other forex pairs)
@@ -353,6 +455,6 @@ Private project - All rights reserved
 
 ---
 
-**Version**: 1.5.0 (Session 6)
+**Version**: 1.6.0 (Session 7)
 **Last Updated**: 2025-11-12
-**Status**: Full UI Dashboard Complete ✅
+**Status**: Production Ready - Drift Detection & Auto-Retraining Complete ✅
