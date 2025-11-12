@@ -68,12 +68,41 @@ trading-system/
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### ⚡ One-Click Setup (Recommended)
+
+**Windows Users:**
+1. Install Docker Desktop and start it
+2. Get free API key: https://www.alphavantage.co/support/#api-key
+3. **Double-click `START_SYSTEM.bat`**
+4. Enter your API key when prompted
+5. Wait ~25 minutes (first time only)
+6. Dashboard opens automatically! 🎉
+
+**All Platforms (Windows/Mac/Linux):**
+```bash
+python setup.py
+```
+
+📖 **Full guide:** See [QUICK_START.md](QUICK_START.md) for detailed instructions and options
+
+**Available Setup Methods:**
+| File | Platform | Description |
+|------|----------|-------------|
+| `START_SYSTEM.bat` | Windows | Double-click to start (easiest) |
+| `STOP_SYSTEM.bat` | Windows | Double-click to stop |
+| `setup.ps1` | Windows | PowerShell script with options |
+| `setup.py` | All | Python script (cross-platform) |
+
+---
+
+### 🛠️ Manual Setup
+
+**Prerequisites:**
 - Docker and Docker Compose installed
 - At least 4GB RAM available
 - Alpha Vantage API key (free tier: https://www.alphavantage.co/support/#api-key)
 
-### Setup
+**Steps:**
 
 1. **Clone the repository**
    ```bash
