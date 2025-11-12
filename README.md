@@ -148,7 +148,7 @@ docker compose exec api pytest tests/ -v
 docker compose exec api pytest tests/test_health.py -v
 ```
 
-## 📊 Current Status: Session 4 Complete
+## 📊 Current Status: Session 5 Complete
 
 ### ✅ Session 1: Foundation
 - [x] Docker infrastructure setup
@@ -192,9 +192,20 @@ docker compose exec api pytest tests/test_health.py -v
 - [x] Training script with train/val split
 - [x] Ensemble evaluation metrics
 
+### ✅ Session 5: Inference & Risk Management
+- [x] Real-time model inference for predictions
+- [x] Position sizing based on risk percentage
+- [x] ATR-based TP/SL calculation (2×ATR TP, 1×ATR SL)
+- [x] Trade entry/exit rules with time-based stops
+- [x] Risk manager (max open trades, daily limits, drawdown protection)
+- [x] Trade simulator for backtesting
+- [x] Performance tracking and metrics calculation
+- [x] Inference engine with dry-run and live modes
+- [x] Backtesting script with equity curve generation
+- [x] Automated scheduler jobs for hourly inference
+- [x] Comprehensive tests for inference and risk modules
+
 ### 🚧 Coming in Future Sessions
-- [ ] **Session 4**: Model training & ensemble
-- [ ] **Session 5**: Inference, risk management, simulation
 - [ ] **Session 6**: Full UI dashboard with visualizations
 - [ ] **Session 7**: Drift detection & auto-retraining
 
@@ -330,6 +341,6 @@ Private project - All rights reserved
 
 ---
 
-**Version**: 1.0.0 (Session 1)
+**Version**: 1.4.0 (Session 5)
 **Last Updated**: 2025-11-12
-**Status**: Foundation Complete ✅
+**Status**: Inference & Risk Management Complete ✅
