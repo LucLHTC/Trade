@@ -148,7 +148,7 @@ docker compose exec api pytest tests/ -v
 docker compose exec api pytest tests/test_health.py -v
 ```
 
-## 📊 Current Status: Session 2 Complete
+## 📊 Current Status: Session 3 Complete
 
 ### ✅ Session 1: Foundation
 - [x] Docker infrastructure setup
@@ -171,8 +171,19 @@ docker compose exec api pytest tests/test_health.py -v
 - [x] Bootstrap script for historical data
 - [x] Comprehensive data collection tests
 
+### ✅ Session 3: Feature Engineering & Labeling
+- [x] Technical indicators (100+ indicators: RSI, MACD, EMA, Bollinger, ATR, Stochastic, ADX, etc.)
+- [x] Derived features (crossovers, volatility, momentum, price patterns)
+- [x] Event-based features (19 event features with lookback/lookahead)
+- [x] Regime classifier (bullish/bearish/sideways/volatile)
+- [x] Forward return labeling with dynamic thresholds
+- [x] sklearn preprocessing pipeline (imputer + scaler)
+- [x] Feature manager for Parquet storage
+- [x] Automated feature generation in scheduler
+- [x] Feature generation bootstrap script
+- [x] Comprehensive feature tests (40+ test cases)
+
 ### 🚧 Coming in Future Sessions
-- [ ] **Session 3**: Feature engineering & labeling
 - [ ] **Session 4**: Model training & ensemble
 - [ ] **Session 5**: Inference, risk management, simulation
 - [ ] **Session 6**: Full UI dashboard with visualizations

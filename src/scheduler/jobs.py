@@ -17,6 +17,7 @@ from src.common.logger import get_logger
 from src.common.db import get_db
 from src.data_collection.alpha_vantage import AlphaVantageClient, CandleDataManager
 from src.data_collection.macro_feeds import MacroEventManager
+from src.features.manager import FeatureManager
 
 settings = get_settings()
 logger = get_logger(__name__)
@@ -60,13 +61,40 @@ def fetch_candles_hourly():
         return False
 
 
+def update_features():
+    """
+    Update features and labels from latest candle data.
+    """
+    logger.info("🔧 Updating features and labels...")
+
+    try:
+        feature_manager = FeatureManager()
+
+        # Generate features from all available candle data
+        features_path, labels_path = feature_manager.generate_and_save_all(
+            symbol="EURUSD"
+        )
+
+        if features_path and labels_path:
+            logger.info(f"✅ Features updated: {features_path}")
+            logger.info(f"✅ Labels updated: {labels_path}")
+            return True
+        else:
+            logger.warning("Feature update failed")
+            return False
+
+    except Exception as e:
+        logger.error(f"❌ Failed to update features: {e}")
+        return False
+
+
 def hourly_job():
     """
     Hourly job - runs every hour.
 
     Tasks:
     - Fetch new candles
-    - Update features (Session 3)
+    - Update features
     - Generate predictions (Session 4)
     - Check for trade signals (Session 5)
     """
@@ -75,8 +103,12 @@ def hourly_job():
     # Fetch latest candles
     fetch_candles_hourly()
 
-    # TODO: Implement in Session 3-5
-    # - Update features
+    # Update features (every 6 hours to reduce computation)
+    # Check if current hour is divisible by 6
+    if datetime.utcnow().hour % 6 == 0:
+        update_features()
+
+    # TODO: Implement in Session 4-5
     # - Generate predictions
     # - Check for trade signals
 
@@ -111,7 +143,7 @@ def daily_job():
 
     Tasks:
     - Fetch macro events
-    - Feature/label refresh (Session 3)
+    - Full feature/label refresh
     - Drift detection (Session 7)
     - Model retraining (if needed) (Session 7)
     - Database maintenance
@@ -128,8 +160,11 @@ def daily_job():
     # Fetch macro events
     fetch_macro_events_daily()
 
-    # TODO: Implement in Session 3-7
-    # - Regenerate features/labels
+    # Full feature/label refresh
+    logger.info("Starting daily feature/label refresh")
+    update_features()
+
+    # TODO: Implement in Session 7
     # - Run drift detection
     # - Trigger retraining if needed
 

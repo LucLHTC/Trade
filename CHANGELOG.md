@@ -283,4 +283,28 @@ Actual vs Consensus: Beat expectations = bullish, miss = bearish
 
 - **1.0.0** (2025-11-12) - Session 1: Foundation & Skeleton ✅
 - **1.1.0** (2025-11-12) - Session 2: Data Acquisition ✅
-- **Next:** Session 3: Feature Engineering & Labeling (Pending 🚧)
+- **1.2.0** (2025-11-12) - Session 3: Feature Engineering & Labeling ✅
+- **Next:** Session 4: Model Training & Ensemble (Pending 🚧)
+
+## [1.2.0] - 2025-11-12 - Session 3: Feature Engineering & Labeling ✅
+
+### Added - Technical Indicators & Features
+- 100+ technical indicators (RSI, MACD, EMA, Bollinger, ATR, Stochastic, ADX, etc.)
+- 30+ derived features (crossovers, volatility, momentum, price patterns)
+- 19 event-based features with temporal awareness
+- Regime classifier (bullish/bearish/sideways/volatile)
+- Forward return labeling with dynamic thresholds
+- sklearn preprocessing pipeline (imputer + scaler)
+- Feature manager for Parquet storage
+- Automated feature generation in scheduler
+- Feature generation bootstrap script
+- 40+ comprehensive test cases
+
+### Acceptance Criteria - All Met ✅
+- [x] 150+ features per timestamp
+- [x] Regime-aware labeling
+- [x] sklearn pipeline with save/load
+- [x] Parquet storage for features/labels
+- [x] Scheduler integration
+- [x] All tests pass
+
