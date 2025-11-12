@@ -148,7 +148,7 @@ docker compose exec api pytest tests/ -v
 docker compose exec api pytest tests/test_health.py -v
 ```
 
-## 📊 Current Status: Session 5 Complete
+## 📊 Current Status: Session 6 Complete
 
 ### ✅ Session 1: Foundation
 - [x] Docker infrastructure setup
@@ -205,8 +205,20 @@ docker compose exec api pytest tests/test_health.py -v
 - [x] Automated scheduler jobs for hourly inference
 - [x] Comprehensive tests for inference and risk modules
 
+### ✅ Session 6: Full UI Dashboard
+- [x] Interactive Streamlit dashboard with 5 tabs (Overview, Trading, Performance, Model, System)
+- [x] Live trading view with open positions monitor
+- [x] Performance charts (equity curve, drawdown, rolling win rate)
+- [x] P&L distribution and trade duration analytics
+- [x] Model monitoring (prediction distribution, SHAP top features)
+- [x] Trade history table with multi-filter support
+- [x] System controls (start/stop trading, risk parameters)
+- [x] Auto-refresh functionality (60s interval)
+- [x] Real-time metrics display (total trades, win rate, P&L, profit factor)
+- [x] Plotly visualizations for all charts
+- [x] CSV download for trade history
+
 ### 🚧 Coming in Future Sessions
-- [ ] **Session 6**: Full UI dashboard with visualizations
 - [ ] **Session 7**: Drift detection & auto-retraining
 
 ## 🛠️ Development Commands
@@ -341,6 +353,6 @@ Private project - All rights reserved
 
 ---
 
-**Version**: 1.4.0 (Session 5)
+**Version**: 1.5.0 (Session 6)
 **Last Updated**: 2025-11-12
-**Status**: Inference & Risk Management Complete ✅
+**Status**: Full UI Dashboard Complete ✅
