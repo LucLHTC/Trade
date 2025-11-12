@@ -148,7 +148,7 @@ docker compose exec api pytest tests/ -v
 docker compose exec api pytest tests/test_health.py -v
 ```
 
-## 📊 Current Status: Session 3 Complete
+## 📊 Current Status: Session 4 Complete
 
 ### ✅ Session 1: Foundation
 - [x] Docker infrastructure setup
@@ -182,6 +182,15 @@ docker compose exec api pytest tests/test_health.py -v
 - [x] Automated feature generation in scheduler
 - [x] Feature generation bootstrap script
 - [x] Comprehensive feature tests (40+ test cases)
+
+### ✅ Session 4: Model Training & Ensemble
+- [x] Base model trainer with evaluation metrics
+- [x] XGBoost, LightGBM, RandomForest trainers
+- [x] Ensemble soft voting (weighted average)
+- [x] SHAP interpretability for feature importance
+- [x] Model persistence (save/load with joblib)
+- [x] Training script with train/val split
+- [x] Ensemble evaluation metrics
 
 ### 🚧 Coming in Future Sessions
 - [ ] **Session 4**: Model training & ensemble

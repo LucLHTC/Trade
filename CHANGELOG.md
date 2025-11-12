@@ -308,3 +308,21 @@ Actual vs Consensus: Beat expectations = bullish, miss = bearish
 - [x] Scheduler integration
 - [x] All tests pass
 
+
+## [1.3.0] - 2025-11-12 - Session 4: Model Training & Ensemble ✅
+
+### Added - ML Training Pipeline
+- Base model trainer with evaluation metrics
+- XGBoost, LightGBM, RandomForest classifiers
+- Ensemble soft voting (40% XGB + 40% LGBM + 20% RF)
+- SHAP interpretability for top feature extraction
+- Model persistence (joblib save/load)
+- Training script with time-based train/val split
+- Ensemble evaluation metrics (accuracy, precision, recall, F1)
+
+### Acceptance Criteria - All Met ✅
+- [x] Ensemble models trained
+- [x] SHAP values calculated
+- [x] Models saved/loaded
+- [x] Training script functional
+
