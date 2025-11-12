@@ -31,7 +31,7 @@ shap==0.44.0
 optuna==3.5.0
 
 # Technical Indicators
-pandas-ta>=0.3.14b
+git+https://github.com/twopirllc/pandas-ta.git@development
 
 # Scheduling
 schedule==1.2.0
