@@ -105,6 +105,18 @@ trading-system/
    - Check "System Health" tab
    - Ensure API and Database show "✅ healthy"
 
+5. **Bootstrap historical data** (Session 2+)
+   ```bash
+   # Run the bootstrap script to fetch initial data
+   docker compose exec api python scripts/bootstrap_data.py
+   ```
+
+   This will:
+   - Fetch EUR/USD 60min candles from Alpha Vantage
+   - Create sample macro events
+   - Attempt to fetch real macro events
+   - Validate and report data statistics
+
 ### Access Points
 
 | Service | URL | Description |
@@ -136,9 +148,9 @@ docker compose exec api pytest tests/ -v
 docker compose exec api pytest tests/test_health.py -v
 ```
 
-## 📊 Current Status: Session 1 Complete
+## 📊 Current Status: Session 2 Complete
 
-### ✅ Completed
+### ✅ Session 1: Foundation
 - [x] Docker infrastructure setup
 - [x] PostgreSQL database with schema
 - [x] FastAPI with health endpoints
@@ -148,8 +160,18 @@ docker compose exec api pytest tests/test_health.py -v
 - [x] JSONL logging system
 - [x] Scheduler framework
 
+### ✅ Session 2: Data Acquisition
+- [x] Alpha Vantage API client with retry logic
+- [x] EUR/USD 60min candle data fetching
+- [x] Parquet storage with date-based organization
+- [x] Gap detection in candle data
+- [x] Macro event scrapers (ForexFactory, TradingEconomics)
+- [x] Event classification (bullish/bearish/neutral for EUR/USD)
+- [x] Automated hourly and daily data collection jobs
+- [x] Bootstrap script for historical data
+- [x] Comprehensive data collection tests
+
 ### 🚧 Coming in Future Sessions
-- [ ] **Session 2**: Data acquisition (Alpha Vantage + macro events)
 - [ ] **Session 3**: Feature engineering & labeling
 - [ ] **Session 4**: Model training & ensemble
 - [ ] **Session 5**: Inference, risk management, simulation
