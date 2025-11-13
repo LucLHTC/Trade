@@ -17,7 +17,7 @@ Write-Host "       ML TRADING SYSTEM - ULTIMATE ONE-CLICK SETUP" -ForegroundColo
 Write-Host "       No Questions, No Problems, Just Works!" -ForegroundColor Cyan
 Write-Host "========================================================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Total time: ~40 minutes (includes building TA-Lib from source)" -ForegroundColor Yellow
+Write-Host "Total time: ~25-30 minutes (automated setup)" -ForegroundColor Yellow
 Write-Host ""
 Start-Sleep -Seconds 2
 
@@ -86,8 +86,8 @@ Write-Host "OK - All directories created" -ForegroundColor Green
 Write-Host ""
 
 # Build containers
-Write-Host "[5/10] Building Docker containers (10-15 min)..." -ForegroundColor Magenta
-Write-Host "This is the longest step - be patient!" -ForegroundColor Yellow
+Write-Host "[5/10] Building Docker containers (5-8 min)..." -ForegroundColor Magenta
+Write-Host "Installing dependencies and building images..." -ForegroundColor Yellow
 docker compose up --build -d
 if ($LASTEXITCODE -ne 0) {
     Write-Host "ERROR: Docker build failed!" -ForegroundColor Red
@@ -129,9 +129,9 @@ Write-Host ""
 
 # Verify pandas-ta installation
 Write-Host "[7/9] Verifying pandas-ta installation..." -ForegroundColor Magenta
-$verifyOutput = docker compose exec -T api python -c "import pandas_ta; import talib; print('pandas-ta OK')" 2>&1
+$verifyOutput = docker compose exec -T api python -c "import pandas_ta; print('pandas-ta version:', pandas_ta.version)" 2>&1
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "OK - pandas-ta and TA-Lib installed successfully" -ForegroundColor Green
+    Write-Host "OK - pandas-ta installed successfully" -ForegroundColor Green
 } else {
     Write-Host "WARNING - Issue with pandas-ta installation" -ForegroundColor Yellow
     Write-Host $verifyOutput -ForegroundColor Yellow
