@@ -22,7 +22,7 @@ from src.common.config import get_settings
 from src.common.db import get_connection, execute_query
 from src.common.logger import get_logger
 from src.monitoring.performance import PerformanceTracker, MetricsReporter
-from src.data_collection.manager import CandleDataManager
+from src.data_collection.alpha_vantage import CandleDataManager
 
 # Page configuration
 st.set_page_config(

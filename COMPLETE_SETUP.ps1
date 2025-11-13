@@ -129,29 +129,45 @@ Write-Host ""
 
 # Install pandas-ta in running containers
 Write-Host "[7/10] Installing pandas-ta library (special fix - takes 2-3 min)..." -ForegroundColor Magenta
-Write-Host "Installing in API container..." -ForegroundColor Cyan
 
-$installOutput = docker compose exec -T api bash -c "pip install --no-cache-dir pandas-ta 2>&1" 2>&1
-if ($LASTEXITCODE -ne 0 -or $installOutput -match "error|ERROR|failed") {
-    Write-Host "First attempt failed, trying alternative method..." -ForegroundColor Yellow
-    docker compose exec -T api bash -c "pip install --no-cache-dir git+https://github.com/twopirllc/pandas-ta.git 2>&1" | Out-Null
+# Function to install and verify pandas-ta in a container
+function Install-PandasTA {
+    param($containerName)
+
+    Write-Host "  Installing in $containerName container..." -ForegroundColor Cyan
+
+    # Try downloading and installing from GitHub ZIP
+    $installCmd = @"
+pip install --no-cache-dir https://github.com/twopirllc/pandas-ta/archive/refs/heads/main.zip 2>&1
+"@
+
+    $output = docker compose exec -T $containerName bash -c $installCmd 2>&1
+
+    # Verify installation
+    $verifyCmd = "python -c 'import pandas_ta; print(pandas_ta.__version__)' 2>&1"
+    $verifyOutput = docker compose exec -T $containerName bash -c $verifyCmd 2>&1
+
+    if ($LASTEXITCODE -eq 0 -and $verifyOutput -match "^\d+\.\d+") {
+        Write-Host "  OK - pandas-ta $verifyOutput installed in $containerName" -ForegroundColor Green
+        return $true
+    } else {
+        Write-Host "  WARN - pandas-ta installation failed in $containerName" -ForegroundColor Yellow
+        Write-Host "  Error: $verifyOutput" -ForegroundColor Gray
+        return $false
+    }
 }
 
-Write-Host "Installing in Scheduler container..." -ForegroundColor Cyan
-$installOutput = docker compose exec -T scheduler bash -c "pip install --no-cache-dir pandas-ta 2>&1" 2>&1
-if ($LASTEXITCODE -ne 0 -or $installOutput -match "error|ERROR|failed") {
-    Write-Host "First attempt failed, trying alternative method..." -ForegroundColor Yellow
-    docker compose exec -T scheduler bash -c "pip install --no-cache-dir git+https://github.com/twopirllc/pandas-ta.git 2>&1" | Out-Null
-}
+# Install in all containers
+$apiSuccess = Install-PandasTA "api"
+$schedulerSuccess = Install-PandasTA "scheduler"
+$uiSuccess = Install-PandasTA "ui"
 
-Write-Host "Installing in UI container..." -ForegroundColor Cyan
-$installOutput = docker compose exec -T ui bash -c "pip install --no-cache-dir pandas-ta 2>&1" 2>&1
-if ($LASTEXITCODE -ne 0 -or $installOutput -match "error|ERROR|failed") {
-    Write-Host "First attempt failed, trying alternative method..." -ForegroundColor Yellow
-    docker compose exec -T ui bash -c "pip install --no-cache-dir git+https://github.com/twopirllc/pandas-ta.git 2>&1" | Out-Null
+if ($apiSuccess -and $schedulerSuccess -and $uiSuccess) {
+    Write-Host "OK - pandas-ta successfully installed and verified in all containers" -ForegroundColor Green
+} else {
+    Write-Host "WARN - pandas-ta installation incomplete (some containers failed)" -ForegroundColor Yellow
+    Write-Host "The system may still work, but technical indicators might not be available" -ForegroundColor Yellow
 }
-
-Write-Host "OK - pandas-ta installed in all containers" -ForegroundColor Green
 Write-Host ""
 
 # Restart containers to load pandas-ta
@@ -175,7 +191,7 @@ if ($LASTEXITCODE -eq 0) {
 Write-Host ""
 
 Write-Host "  [2/4] Generating features (2-3 min)..." -ForegroundColor Cyan
-docker compose exec -T api python -c "from src.features.manager import FeatureManager; m = FeatureManager(); m.generate_features('EURUSD')"
+docker compose exec -T api python -c "from src.features.manager import FeatureManager; m = FeatureManager(); m.generate_features_from_candles('EURUSD')"
 if ($LASTEXITCODE -eq 0) {
     Write-Host "  OK - Features generated" -ForegroundColor Green
 } else {
@@ -184,7 +200,7 @@ if ($LASTEXITCODE -eq 0) {
 Write-Host ""
 
 Write-Host "  [3/4] Generating labels (1 min)..." -ForegroundColor Cyan
-docker compose exec -T api python -c "from src.labeling.manager import LabelManager; m = LabelManager(); m.generate_labels('EURUSD')"
+docker compose exec -T api python -c "from src.labeling.manager import LabelManager; m = LabelManager(); m.generate_and_save('EURUSD')"
 if ($LASTEXITCODE -eq 0) {
     Write-Host "  OK - Labels generated" -ForegroundColor Green
 } else {
@@ -193,7 +209,7 @@ if ($LASTEXITCODE -eq 0) {
 Write-Host ""
 
 Write-Host "  [4/4] Training ensemble model (10-15 min)..." -ForegroundColor Cyan
-docker compose exec -T api python -c "from src.training.trainer import ModelTrainer; t = ModelTrainer(); t.train_ensemble('EURUSD')"
+docker compose exec -T api python -c "from src.training.trainer import ModelTrainer; t = ModelTrainer(); t.train_and_save('EURUSD')"
 if ($LASTEXITCODE -eq 0) {
     Write-Host "  OK - Model trained successfully!" -ForegroundColor Green
 } else {
