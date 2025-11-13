@@ -18,9 +18,24 @@ from src.common.db import get_db
 from src.data_collection.alpha_vantage import AlphaVantageClient, CandleDataManager
 from src.data_collection.macro_feeds import MacroEventManager
 from src.features.manager import FeatureManager
+from src.trading.paper_trader import PaperTradingEngine
 
 settings = get_settings()
 logger = get_logger(__name__)
+
+# Initialize paper trading engine (global instance for scheduler)
+paper_trader = None
+
+def init_paper_trader():
+    """Initialize paper trading engine."""
+    global paper_trader
+    if paper_trader is None:
+        try:
+            paper_trader = PaperTradingEngine()
+            logger.info("✅ Paper trading engine initialized")
+        except Exception as e:
+            logger.error(f"Failed to initialize paper trader: {e}")
+    return paper_trader
 
 
 def fetch_candles_hourly():
@@ -88,29 +103,48 @@ def update_features():
         return False
 
 
+def run_paper_trading():
+    """
+    Run paper trading cycle.
+    Generates predictions and manages paper positions.
+    """
+    logger.info("🤖 Running paper trading cycle...")
+
+    try:
+        trader = init_paper_trader()
+        if trader:
+            trader.run_hourly_cycle()
+            logger.info("✅ Paper trading cycle complete")
+            return True
+        else:
+            logger.warning("Paper trader not initialized")
+            return False
+    except Exception as e:
+        logger.error(f"❌ Paper trading cycle failed: {e}", exc_info=True)
+        return False
+
+
 def hourly_job():
     """
     Hourly job - runs every hour.
 
     Tasks:
     - Fetch new candles
-    - Update features
-    - Generate predictions (Session 4)
-    - Check for trade signals (Session 5)
+    - Update features (every 6h)
+    - Run paper trading (every hour)
     """
     logger.info(f"⏰ Running hourly job at {datetime.utcnow().isoformat()}")
 
-    # Fetch latest candles
-    fetch_candles_hourly()
+    # 1. Fetch latest candles
+    candles_fetched = fetch_candles_hourly()
 
-    # Update features (every 6 hours to reduce computation)
-    # Check if current hour is divisible by 6
+    # 2. Update features (every 6 hours to reduce computation)
     if datetime.utcnow().hour % 6 == 0:
         update_features()
 
-    # TODO: Implement in Session 4-5
-    # - Generate predictions
-    # - Check for trade signals
+    # 3. Run paper trading cycle
+    if candles_fetched:
+        run_paper_trading()
 
     logger.info("✅ Hourly job completed")
 
@@ -199,6 +233,10 @@ def main():
     if not settings.scheduler_enabled:
         logger.warning("Scheduler is disabled in configuration")
         logger.info("Entering monitoring mode (health checks only)")
+
+    # Initialize paper trading engine
+    logger.info("Initializing paper trading engine...")
+    init_paper_trader()
 
     # Schedule jobs
     if settings.hourly_jobs_enabled:
