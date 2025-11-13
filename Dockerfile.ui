@@ -2,10 +2,9 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies (git needed for pandas-ta from GitHub)
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
-    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements
@@ -14,8 +13,8 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install pandas-ta from GitHub (not available on PyPI for Python 3.11)
-RUN pip install --no-cache-dir git+https://github.com/twopirllc/pandas-ta.git@main
+# Install pandas-ta from GitHub ZIP (avoids git clone issues)
+RUN pip install --no-cache-dir https://github.com/twopirllc/pandas-ta/archive/refs/heads/main.zip
 
 # Copy application code
 COPY ui ./ui
