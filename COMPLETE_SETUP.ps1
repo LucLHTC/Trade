@@ -127,13 +127,13 @@ for ($i = 1; $i -le 30; $i++) {
 Write-Host ""
 Write-Host ""
 
-# Verify pandas-ta installation
-Write-Host "[7/9] Verifying pandas-ta installation..." -ForegroundColor Magenta
-$verifyOutput = docker compose exec -T api python -c "import pandas_ta; print('pandas-ta version:', pandas_ta.version)" 2>&1
+# Verify technical analysis library installation
+Write-Host "[7/9] Verifying ta library installation..." -ForegroundColor Magenta
+$verifyOutput = docker compose exec -T api python -c "import ta; print('ta library installed successfully')" 2>&1
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "OK - pandas-ta installed successfully" -ForegroundColor Green
+    Write-Host "OK - ta library installed successfully" -ForegroundColor Green
 } else {
-    Write-Host "WARNING - Issue with pandas-ta installation" -ForegroundColor Yellow
+    Write-Host "WARNING - Issue with ta library installation" -ForegroundColor Yellow
     Write-Host $verifyOutput -ForegroundColor Yellow
 }
 Write-Host ""

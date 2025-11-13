@@ -14,8 +14,8 @@ credentials:
     admin:
       name: Administrator
       # Default password: admin123
-      # Hash generated with: stauth.Hasher(['admin123']).generate()
-      password: $2b$12$KIXqMxsowhUgVIHW8r.yHOq/f8AjZ.yN/NZh.dJ5vvwK8Fq7hT4Oi
+      # Hash generated for streamlit-authenticator 0.2.3
+      password: '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5ztJ.7E6z6KFu'
 
 cookie:
   expiry_days: 30
