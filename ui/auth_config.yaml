@@ -1,0 +1,26 @@
+# Streamlit Authentication Configuration
+#
+# This file controls access to the trading dashboard.
+#
+# IMPORTANT: Change the default password before using in production!
+#
+# To generate a new password hash:
+#   import streamlit_authenticator as stauth
+#   hashed = stauth.Hasher(['your_password']).generate()
+#   print(hashed[0])
+
+credentials:
+  usernames:
+    admin:
+      name: Administrator
+      # Default password: admin123
+      # Hash generated with: stauth.Hasher(['admin123']).generate()
+      password: $2b$12$KIXqMxsowhUgVIHW8r.yHOq/f8AjZ.yN/NZh.dJ5vvwK8Fq7hT4Oi
+
+cookie:
+  expiry_days: 30
+  key: trading_system_secret_key_change_this
+  name: trading_system_auth_cookie
+
+preauthorized:
+  emails: []

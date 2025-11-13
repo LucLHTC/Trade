@@ -38,6 +38,7 @@ schedule==1.2.0
 
 # UI
 streamlit==1.29.0
+streamlit-authenticator==0.2.3
 plotly==5.18.0
 
 # Testing
@@ -48,3 +49,6 @@ httpx==0.25.2
 # Utilities
 python-dateutil==2.8.2
 pytz==2023.3
+
+# Remote Access
+pyngrok==7.0.1
