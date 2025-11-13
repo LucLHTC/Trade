@@ -136,23 +136,33 @@ function Install-PandasTA {
 
     Write-Host "  Installing in $containerName container..." -ForegroundColor Cyan
 
-    # Try downloading and installing from GitHub ZIP
-    $installCmd = @"
-pip install --no-cache-dir https://github.com/twopirllc/pandas-ta/archive/refs/heads/main.zip 2>&1
-"@
-
-    $output = docker compose exec -T $containerName bash -c $installCmd 2>&1
+    # Method 1: Try direct pip install first
+    $installCmd1 = "pip install --upgrade pip && pip install pandas-ta 2>&1"
+    $output1 = docker compose exec -T $containerName bash -c $installCmd1 2>&1
 
     # Verify installation
     $verifyCmd = "python -c 'import pandas_ta; print(pandas_ta.__version__)' 2>&1"
     $verifyOutput = docker compose exec -T $containerName bash -c $verifyCmd 2>&1
 
-    if ($LASTEXITCODE -eq 0 -and $verifyOutput -match "^\d+\.\d+") {
-        Write-Host "  OK - pandas-ta $verifyOutput installed in $containerName" -ForegroundColor Green
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "  OK - pandas-ta installed in $containerName" -ForegroundColor Green
+        return $true
+    }
+
+    # Method 2: Try GitHub ZIP if Method 1 failed
+    Write-Host "  Trying alternative method..." -ForegroundColor Yellow
+    $installCmd2 = "pip install --no-cache-dir https://github.com/twopirllc/pandas-ta/archive/refs/heads/main.zip 2>&1"
+    $output2 = docker compose exec -T $containerName bash -c $installCmd2 2>&1
+
+    # Verify again
+    $verifyOutput2 = docker compose exec -T $containerName bash -c $verifyCmd 2>&1
+
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "  OK - pandas-ta installed in $containerName (via GitHub)" -ForegroundColor Green
         return $true
     } else {
-        Write-Host "  WARN - pandas-ta installation failed in $containerName" -ForegroundColor Yellow
-        Write-Host "  Error: $verifyOutput" -ForegroundColor Gray
+        Write-Host "  ERROR - pandas-ta installation failed in $containerName" -ForegroundColor Red
+        Write-Host "  This will cause issues with technical indicators" -ForegroundColor Red
         return $false
     }
 }
@@ -163,10 +173,12 @@ $schedulerSuccess = Install-PandasTA "scheduler"
 $uiSuccess = Install-PandasTA "ui"
 
 if ($apiSuccess -and $schedulerSuccess -and $uiSuccess) {
-    Write-Host "OK - pandas-ta successfully installed and verified in all containers" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "SUCCESS - pandas-ta installed and verified in all containers!" -ForegroundColor Green
 } else {
-    Write-Host "WARN - pandas-ta installation incomplete (some containers failed)" -ForegroundColor Yellow
-    Write-Host "The system may still work, but technical indicators might not be available" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "WARNING - pandas-ta installation failed in some containers" -ForegroundColor Yellow
+    Write-Host "Run COMPLETE_FIX.bat after setup to fix this" -ForegroundColor Yellow
 }
 Write-Host ""
 
