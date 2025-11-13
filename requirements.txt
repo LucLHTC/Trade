@@ -31,7 +31,7 @@ shap==0.44.0
 optuna==3.5.0
 
 # Technical Indicators
-pandas-ta  # Install latest compatible version
+ta>=0.11.0  # Technical Analysis Library (works with Python 3.11)
 
 # Scheduling
 schedule==1.2.0

@@ -5,9 +5,14 @@ Generates 100+ technical features from OHLCV data.
 
 import pandas as pd
 import numpy as np
-import pandas_ta as ta
 from typing import Optional
 from datetime import datetime
+
+# Import ta library (technical-analysis)
+from ta.momentum import RSIIndicator, StochasticOscillator, ROCIndicator
+from ta.trend import MACD, EMAIndicator, SMAIndicator, ADXIndicator, CCIIndicator
+from ta.volatility import BollingerBands, AverageTrueRange, KeltnerChannel
+from ta.volume import OnBalanceVolumeIndicator, MFIIndicator, VolumeWeightedAveragePrice
 
 from src.common.logger import get_logger
 
@@ -44,105 +49,115 @@ class TechnicalIndicators:
         if missing:
             raise ValueError(f"Missing required columns: {missing}")
 
-        # 1. RSI (Relative Strength Index)
-        result["rsi_14"] = ta.rsi(result["close"], length=14)
-        result["rsi_7"] = ta.rsi(result["close"], length=7)
-        result["rsi_21"] = ta.rsi(result["close"], length=21)
+        try:
+            # 1. RSI (Relative Strength Index)
+            rsi_14 = RSIIndicator(close=result["close"], window=14)
+            result["rsi_14"] = rsi_14.rsi()
 
-        # 2. MACD (Moving Average Convergence Divergence)
-        macd = ta.macd(result["close"], fast=12, slow=26, signal=9)
-        if macd is not None:
-            result["macd"] = macd[f"MACD_12_26_9"]
-            result["macd_signal"] = macd[f"MACDs_12_26_9"]
-            result["macd_histogram"] = macd[f"MACDh_12_26_9"]
+            rsi_7 = RSIIndicator(close=result["close"], window=7)
+            result["rsi_7"] = rsi_7.rsi()
 
-        # 3. EMA (Exponential Moving Average)
-        result["ema_9"] = ta.ema(result["close"], length=9)
-        result["ema_21"] = ta.ema(result["close"], length=21)
-        result["ema_50"] = ta.ema(result["close"], length=50)
-        result["ema_100"] = ta.ema(result["close"], length=100)
-        result["ema_200"] = ta.ema(result["close"], length=200)
+            rsi_21 = RSIIndicator(close=result["close"], window=21)
+            result["rsi_21"] = rsi_21.rsi()
 
-        # 4. SMA (Simple Moving Average)
-        result["sma_20"] = ta.sma(result["close"], length=20)
-        result["sma_50"] = ta.sma(result["close"], length=50)
-        result["sma_200"] = ta.sma(result["close"], length=200)
+            # 2. MACD (Moving Average Convergence Divergence)
+            macd = MACD(close=result["close"], window_fast=12, window_slow=26, window_sign=9)
+            result["macd"] = macd.macd()
+            result["macd_signal"] = macd.macd_signal()
+            result["macd_histogram"] = macd.macd_diff()
 
-        # 5. Bollinger Bands
-        bbands = ta.bbands(result["close"], length=20, std=2)
-        if bbands is not None:
-            result["bb_upper"] = bbands[f"BBU_20_2.0"]
-            result["bb_middle"] = bbands[f"BBM_20_2.0"]
-            result["bb_lower"] = bbands[f"BBL_20_2.0"]
-            result["bb_bandwidth"] = bbands[f"BBB_20_2.0"]
-            result["bb_percent"] = bbands[f"BBP_20_2.0"]
+            # 3. EMA (Exponential Moving Average)
+            ema_9 = EMAIndicator(close=result["close"], window=9)
+            result["ema_9"] = ema_9.ema_indicator()
 
-        # 6. ATR (Average True Range)
-        result["atr_14"] = ta.atr(result["high"], result["low"], result["close"], length=14)
-        result["atr_7"] = ta.atr(result["high"], result["low"], result["close"], length=7)
+            ema_21 = EMAIndicator(close=result["close"], window=21)
+            result["ema_21"] = ema_21.ema_indicator()
 
-        # 7. Stochastic Oscillator
-        stoch = ta.stoch(result["high"], result["low"], result["close"], k=14, d=3, smooth_k=3)
-        if stoch is not None:
-            result["stoch_k"] = stoch[f"STOCHk_14_3_3"]
-            result["stoch_d"] = stoch[f"STOCHd_14_3_3"]
+            ema_50 = EMAIndicator(close=result["close"], window=50)
+            result["ema_50"] = ema_50.ema_indicator()
 
-        # 8. ADX (Average Directional Index)
-        adx = ta.adx(result["high"], result["low"], result["close"], length=14)
-        if adx is not None:
-            result["adx"] = adx[f"ADX_14"]
-            result["di_plus"] = adx[f"DMP_14"]
-            result["di_minus"] = adx[f"DMN_14"]
+            ema_100 = EMAIndicator(close=result["close"], window=100)
+            result["ema_100"] = ema_100.ema_indicator()
 
-        # 9. CCI (Commodity Channel Index)
-        result["cci_20"] = ta.cci(result["high"], result["low"], result["close"], length=20)
+            ema_200 = EMAIndicator(close=result["close"], window=200)
+            result["ema_200"] = ema_200.ema_indicator()
 
-        # 10. ROC (Rate of Change)
-        result["roc_10"] = ta.roc(result["close"], length=10)
-        result["roc_20"] = ta.roc(result["close"], length=20)
+            # 4. SMA (Simple Moving Average)
+            sma_20 = SMAIndicator(close=result["close"], window=20)
+            result["sma_20"] = sma_20.sma_indicator()
 
-        # 11. MFI (Money Flow Index) - requires volume
-        if "volume" in result.columns and result["volume"].sum() > 0:
-            result["mfi_14"] = ta.mfi(
-                result["high"], result["low"], result["close"], result["volume"], length=14
-            )
+            sma_50 = SMAIndicator(close=result["close"], window=50)
+            result["sma_50"] = sma_50.sma_indicator()
 
-        # 12. OBV (On-Balance Volume)
-        if "volume" in result.columns:
-            result["obv"] = ta.obv(result["close"], result["volume"])
+            sma_200 = SMAIndicator(close=result["close"], window=200)
+            result["sma_200"] = sma_200.sma_indicator()
 
-        # 13. VWAP (Volume Weighted Average Price)
-        if "volume" in result.columns and result["volume"].sum() > 0:
-            result["vwap"] = ta.vwap(
-                result["high"], result["low"], result["close"], result["volume"]
-            )
+            # 5. Bollinger Bands
+            bbands = BollingerBands(close=result["close"], window=20, window_dev=2)
+            result["bb_upper"] = bbands.bollinger_hband()
+            result["bb_middle"] = bbands.bollinger_mavg()
+            result["bb_lower"] = bbands.bollinger_lband()
+            result["bb_bandwidth"] = bbands.bollinger_wband()
+            result["bb_percent"] = bbands.bollinger_pband()
 
-        # 14. Donchian Channels
-        donchian = ta.donchian(result["high"], result["low"], lower_length=20, upper_length=20)
-        if donchian is not None:
-            result["donchian_upper"] = donchian[f"DCU_20_20"]
-            result["donchian_middle"] = donchian[f"DCM_20_20"]
-            result["donchian_lower"] = donchian[f"DCL_20_20"]
+            # 6. ATR (Average True Range)
+            atr_14 = AverageTrueRange(high=result["high"], low=result["low"], close=result["close"], window=14)
+            result["atr_14"] = atr_14.average_true_range()
 
-        # 15. Keltner Channels
-        kc = ta.kc(result["high"], result["low"], result["close"], length=20, scalar=2)
-        if kc is not None:
-            result["kc_upper"] = kc[f"KCUe_20_2"]
-            result["kc_middle"] = kc[f"KCBe_20_2"]
-            result["kc_lower"] = kc[f"KCLe_20_2"]
+            atr_7 = AverageTrueRange(high=result["high"], low=result["low"], close=result["close"], window=7)
+            result["atr_7"] = atr_7.average_true_range()
 
-        # 16. Parabolic SAR
-        result["psar"] = ta.psar(result["high"], result["low"], result["close"])["PSARl_0.02_0.2"]
+            # 7. Stochastic Oscillator
+            stoch = StochasticOscillator(high=result["high"], low=result["low"], close=result["close"],
+                                          window=14, smooth_window=3)
+            result["stoch_k"] = stoch.stoch()
+            result["stoch_d"] = stoch.stoch_signal()
 
-        # 17. Ichimoku Cloud
-        ichimoku = ta.ichimoku(result["high"], result["low"], result["close"])
-        if ichimoku is not None and len(ichimoku) > 0:
-            result["ichimoku_conv"] = ichimoku[0][f"ICS_9"]
-            result["ichimoku_base"] = ichimoku[0][f"IKS_26"]
-            result["ichimoku_span_a"] = ichimoku[0][f"ISA_9"]
-            result["ichimoku_span_b"] = ichimoku[0][f"ISB_26"]
+            # 8. ADX (Average Directional Index)
+            adx = ADXIndicator(high=result["high"], low=result["low"], close=result["close"], window=14)
+            result["adx"] = adx.adx()
+            result["di_plus"] = adx.adx_pos()
+            result["di_minus"] = adx.adx_neg()
 
-        logger.info(f"Calculated {len(result.columns) - len(df.columns)} technical indicators")
+            # 9. CCI (Commodity Channel Index)
+            cci = CCIIndicator(high=result["high"], low=result["low"], close=result["close"], window=20)
+            result["cci_20"] = cci.cci()
+
+            # 10. ROC (Rate of Change)
+            roc_10 = ROCIndicator(close=result["close"], window=10)
+            result["roc_10"] = roc_10.roc()
+
+            roc_20 = ROCIndicator(close=result["close"], window=20)
+            result["roc_20"] = roc_20.roc()
+
+            # 11. MFI (Money Flow Index) - requires volume
+            if "volume" in result.columns and result["volume"].sum() > 0:
+                mfi = MFIIndicator(high=result["high"], low=result["low"],
+                                  close=result["close"], volume=result["volume"], window=14)
+                result["mfi_14"] = mfi.money_flow_index()
+
+            # 12. OBV (On-Balance Volume)
+            if "volume" in result.columns:
+                obv = OnBalanceVolumeIndicator(close=result["close"], volume=result["volume"])
+                result["obv"] = obv.on_balance_volume()
+
+            # 13. VWAP (Volume Weighted Average Price)
+            if "volume" in result.columns and result["volume"].sum() > 0:
+                vwap = VolumeWeightedAveragePrice(high=result["high"], low=result["low"],
+                                                  close=result["close"], volume=result["volume"])
+                result["vwap"] = vwap.volume_weighted_average_price()
+
+            # 14. Keltner Channels
+            kc = KeltnerChannel(high=result["high"], low=result["low"], close=result["close"], window=20)
+            result["kc_upper"] = kc.keltner_channel_hband()
+            result["kc_middle"] = kc.keltner_channel_mband()
+            result["kc_lower"] = kc.keltner_channel_lband()
+
+            logger.info(f"Calculated {len(result.columns) - len(df.columns)} technical indicators")
+
+        except Exception as e:
+            logger.error(f"Error calculating technical indicators: {e}")
+            raise
 
         return result
 
@@ -266,7 +281,7 @@ class TechnicalIndicators:
     @staticmethod
     def calculate_price_patterns(df: pd.DataFrame) -> pd.DataFrame:
         """
-        Calculate price pattern features (candlestick patterns, etc.).
+        Calculate price pattern features (candlestick patterns, support/resistance, etc.).
 
         Args:
             df: DataFrame with OHLCV data
@@ -275,26 +290,6 @@ class TechnicalIndicators:
             DataFrame with pattern features
         """
         result = df.copy()
-
-        # Basic candlestick patterns using pandas-ta
-        patterns = ta.cdl_pattern(
-            result["open"], result["high"], result["low"], result["close"]
-        )
-
-        if patterns is not None:
-            # Select most important patterns
-            pattern_cols = [
-                "CDL_DOJI",
-                "CDL_ENGULFING",
-                "CDL_HAMMER",
-                "CDL_HANGINGMAN",
-                "CDL_MORNINGSTAR",
-                "CDL_EVENINGSTAR",
-            ]
-
-            for col in pattern_cols:
-                if col in patterns.columns:
-                    result[col.lower()] = patterns[col]
 
         # Higher highs and lower lows
         result["higher_high"] = (
@@ -314,6 +309,25 @@ class TechnicalIndicators:
         result["near_support"] = (
             (result["close"] < rolling_low * 1.005)
         ).astype(int)
+
+        # Simple candlestick patterns
+        body = abs(result["close"] - result["open"])
+        total_range = result["high"] - result["low"]
+        upper_shadow = result["high"] - result[["open", "close"]].max(axis=1)
+        lower_shadow = result[["open", "close"]].min(axis=1) - result["low"]
+
+        # Doji - small body compared to total range
+        result["cdl_doji"] = ((body / total_range < 0.1) & (total_range > 0)).astype(int)
+
+        # Hammer - long lower shadow, small upper shadow
+        result["cdl_hammer"] = (
+            (lower_shadow > body * 2) &
+            (upper_shadow < body * 0.5) &
+            (total_range > 0)
+        ).astype(int)
+
+        # Hanging Man (bearish) - same as hammer but at top of uptrend
+        result["cdl_hangingman"] = result["cdl_hammer"].copy()
 
         logger.info(f"Calculated {len(result.columns) - len(df.columns)} price pattern features")
 
