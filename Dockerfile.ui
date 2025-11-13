@@ -10,11 +10,8 @@ RUN apt-get update && apt-get install -y \
 # Copy requirements
 COPY requirements.txt .
 
-# Install Python dependencies
+# Install Python dependencies (including pandas-ta)
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Install pandas-ta from GitHub ZIP (avoids git clone issues)
-RUN pip install --no-cache-dir https://github.com/twopirllc/pandas-ta/archive/refs/heads/main.zip
 
 # Copy application code
 COPY ui ./ui

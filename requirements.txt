@@ -31,7 +31,7 @@ shap==0.44.0
 optuna==3.5.0
 
 # Technical Indicators
-# pandas-ta installed separately from GitHub in Dockerfile (does NOT require TA-Lib)
+pandas-ta  # Install latest compatible version
 
 # Scheduling
 schedule==1.2.0
