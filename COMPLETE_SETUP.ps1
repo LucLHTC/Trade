@@ -128,18 +128,36 @@ Write-Host ""
 Write-Host ""
 
 # Install pandas-ta in running containers
-Write-Host "[7/10] Installing pandas-ta library (special fix)..." -ForegroundColor Magenta
+Write-Host "[7/10] Installing pandas-ta library (special fix - takes 2-3 min)..." -ForegroundColor Magenta
 Write-Host "Installing in API container..." -ForegroundColor Cyan
-docker compose exec -T api pip install --no-cache-dir 'pandas-ta @ git+https://github.com/twopirllc/pandas-ta.git@main' 2>&1 | Out-Null
+
+$installOutput = docker compose exec -T api bash -c "pip install --no-cache-dir pandas-ta 2>&1" 2>&1
+if ($LASTEXITCODE -ne 0 -or $installOutput -match "error|ERROR|failed") {
+    Write-Host "First attempt failed, trying alternative method..." -ForegroundColor Yellow
+    docker compose exec -T api bash -c "pip install --no-cache-dir git+https://github.com/twopirllc/pandas-ta.git 2>&1" | Out-Null
+}
+
 Write-Host "Installing in Scheduler container..." -ForegroundColor Cyan
-docker compose exec -T scheduler pip install --no-cache-dir 'pandas-ta @ git+https://github.com/twopirllc/pandas-ta.git@main' 2>&1 | Out-Null
-Write-Host "OK - pandas-ta installed successfully" -ForegroundColor Green
+$installOutput = docker compose exec -T scheduler bash -c "pip install --no-cache-dir pandas-ta 2>&1" 2>&1
+if ($LASTEXITCODE -ne 0 -or $installOutput -match "error|ERROR|failed") {
+    Write-Host "First attempt failed, trying alternative method..." -ForegroundColor Yellow
+    docker compose exec -T scheduler bash -c "pip install --no-cache-dir git+https://github.com/twopirllc/pandas-ta.git 2>&1" | Out-Null
+}
+
+Write-Host "Installing in UI container..." -ForegroundColor Cyan
+$installOutput = docker compose exec -T ui bash -c "pip install --no-cache-dir pandas-ta 2>&1" 2>&1
+if ($LASTEXITCODE -ne 0 -or $installOutput -match "error|ERROR|failed") {
+    Write-Host "First attempt failed, trying alternative method..." -ForegroundColor Yellow
+    docker compose exec -T ui bash -c "pip install --no-cache-dir git+https://github.com/twopirllc/pandas-ta.git 2>&1" | Out-Null
+}
+
+Write-Host "OK - pandas-ta installed in all containers" -ForegroundColor Green
 Write-Host ""
 
 # Restart containers to load pandas-ta
 Write-Host "[8/10] Restarting containers..." -ForegroundColor Magenta
-docker compose restart api scheduler 2>&1 | Out-Null
-Start-Sleep -Seconds 10
+docker compose restart api scheduler ui 2>&1 | Out-Null
+Start-Sleep -Seconds 15
 Write-Host "OK - Containers restarted" -ForegroundColor Green
 Write-Host ""
 

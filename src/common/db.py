@@ -187,3 +187,24 @@ def close_db():
     if _db_manager:
         _db_manager.close()
         _db_manager = None
+
+
+# Convenience functions for backward compatibility
+def get_connection():
+    """Get a database connection from the pool (context manager)."""
+    return get_db().get_connection()
+
+
+def execute_query(query: str, params: Optional[tuple] = None, fetch: bool = True):
+    """
+    Execute a SQL query using the global database manager.
+
+    Args:
+        query: SQL query string
+        params: Query parameters
+        fetch: Whether to fetch and return results
+
+    Returns:
+        List of dictionaries if fetch=True, None otherwise
+    """
+    return get_db().execute_query(query, params, fetch)
