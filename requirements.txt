@@ -31,7 +31,8 @@ shap==0.44.0
 optuna==3.5.0
 
 # Technical Indicators
-# pandas-ta installed separately - see setup script
+TA-Lib==0.4.28
+pandas-ta==0.3.14b
 
 # Scheduling
 schedule==1.2.0

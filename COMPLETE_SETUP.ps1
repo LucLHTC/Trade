@@ -17,7 +17,7 @@ Write-Host "       ML TRADING SYSTEM - ULTIMATE ONE-CLICK SETUP" -ForegroundColo
 Write-Host "       No Questions, No Problems, Just Works!" -ForegroundColor Cyan
 Write-Host "========================================================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Total time: ~35 minutes (grab a coffee!)" -ForegroundColor Yellow
+Write-Host "Total time: ~40 minutes (includes building TA-Lib from source)" -ForegroundColor Yellow
 Write-Host ""
 Start-Sleep -Seconds 2
 
@@ -127,70 +127,20 @@ for ($i = 1; $i -le 30; $i++) {
 Write-Host ""
 Write-Host ""
 
-# Install pandas-ta in running containers
-Write-Host "[7/10] Installing pandas-ta library (special fix - takes 2-3 min)..." -ForegroundColor Magenta
-
-# Function to install and verify pandas-ta in a container
-function Install-PandasTA {
-    param($containerName)
-
-    Write-Host "  Installing in $containerName container..." -ForegroundColor Cyan
-
-    # Method 1: Try direct pip install first
-    $installCmd1 = "pip install --upgrade pip && pip install pandas-ta 2>&1"
-    $output1 = docker compose exec -T $containerName bash -c $installCmd1 2>&1
-
-    # Verify installation
-    $verifyCmd = "python -c 'import pandas_ta; print(pandas_ta.__version__)' 2>&1"
-    $verifyOutput = docker compose exec -T $containerName bash -c $verifyCmd 2>&1
-
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "  OK - pandas-ta installed in $containerName" -ForegroundColor Green
-        return $true
-    }
-
-    # Method 2: Try GitHub ZIP if Method 1 failed
-    Write-Host "  Trying alternative method..." -ForegroundColor Yellow
-    $installCmd2 = "pip install --no-cache-dir https://github.com/twopirllc/pandas-ta/archive/refs/heads/main.zip 2>&1"
-    $output2 = docker compose exec -T $containerName bash -c $installCmd2 2>&1
-
-    # Verify again
-    $verifyOutput2 = docker compose exec -T $containerName bash -c $verifyCmd 2>&1
-
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "  OK - pandas-ta installed in $containerName (via GitHub)" -ForegroundColor Green
-        return $true
-    } else {
-        Write-Host "  ERROR - pandas-ta installation failed in $containerName" -ForegroundColor Red
-        Write-Host "  This will cause issues with technical indicators" -ForegroundColor Red
-        return $false
-    }
-}
-
-# Install in all containers
-$apiSuccess = Install-PandasTA "api"
-$schedulerSuccess = Install-PandasTA "scheduler"
-$uiSuccess = Install-PandasTA "ui"
-
-if ($apiSuccess -and $schedulerSuccess -and $uiSuccess) {
-    Write-Host ""
-    Write-Host "SUCCESS - pandas-ta installed and verified in all containers!" -ForegroundColor Green
+# Verify pandas-ta installation
+Write-Host "[7/10] Verifying pandas-ta installation..." -ForegroundColor Magenta
+$verifyCmd = "python -c 'import pandas_ta; import talib; print(\"pandas-ta:\", pandas_ta.__version__)' 2>&1"
+$verifyOutput = docker compose exec -T api bash -c $verifyCmd 2>&1
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "OK - pandas-ta and TA-Lib installed successfully" -ForegroundColor Green
 } else {
-    Write-Host ""
-    Write-Host "WARNING - pandas-ta installation failed in some containers" -ForegroundColor Yellow
-    Write-Host "Run COMPLETE_FIX.bat after setup to fix this" -ForegroundColor Yellow
+    Write-Host "WARNING - Issue with pandas-ta installation" -ForegroundColor Yellow
+    Write-Host $verifyOutput -ForegroundColor Yellow
 }
-Write-Host ""
-
-# Restart containers to load pandas-ta
-Write-Host "[8/10] Restarting containers..." -ForegroundColor Magenta
-docker compose restart api scheduler ui 2>&1 | Out-Null
-Start-Sleep -Seconds 15
-Write-Host "OK - Containers restarted" -ForegroundColor Green
 Write-Host ""
 
 # Collect data
-Write-Host "[9/10] Collecting data and training model (~20 min)..." -ForegroundColor Magenta
+Write-Host "[8/9] Collecting data and training model (~20 min)..." -ForegroundColor Magenta
 Write-Host ""
 
 Write-Host "  [1/4] Collecting 90 days EUR/USD data (5 min)..." -ForegroundColor Cyan
@@ -230,7 +180,7 @@ if ($LASTEXITCODE -eq 0) {
 Write-Host ""
 
 # Open dashboard
-Write-Host "[10/10] Opening dashboard..." -ForegroundColor Magenta
+Write-Host "[9/9] Opening dashboard..." -ForegroundColor Magenta
 Start-Sleep -Seconds 2
 Start-Process "http://localhost:8501"
 Write-Host "OK - Dashboard opened in browser" -ForegroundColor Green

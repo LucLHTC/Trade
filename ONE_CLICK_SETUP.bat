@@ -13,8 +13,8 @@ echo                   ML TRADING SYSTEM - ONE CLICK SETUP
 echo.
 echo   After git clone, just run this - EVERYTHING is automated!
 echo.
-echo   Total time: About 35 minutes
-echo   - Building containers: 10-15 min
+echo   Total time: About 40 minutes
+echo   - Building containers (with TA-Lib): 15-20 min
 echo   - Collecting data: 5 min
 echo   - Training model: 10-15 min
 echo.
