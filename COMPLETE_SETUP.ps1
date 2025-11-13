@@ -128,9 +128,8 @@ Write-Host ""
 Write-Host ""
 
 # Verify pandas-ta installation
-Write-Host "[7/10] Verifying pandas-ta installation..." -ForegroundColor Magenta
-$verifyCmd = "python -c 'import pandas_ta; import talib; print(\"pandas-ta:\", pandas_ta.__version__)' 2>&1"
-$verifyOutput = docker compose exec -T api bash -c $verifyCmd 2>&1
+Write-Host "[7/9] Verifying pandas-ta installation..." -ForegroundColor Magenta
+$verifyOutput = docker compose exec -T api python -c "import pandas_ta; import talib; print('pandas-ta OK')" 2>&1
 if ($LASTEXITCODE -eq 0) {
     Write-Host "OK - pandas-ta and TA-Lib installed successfully" -ForegroundColor Green
 } else {
