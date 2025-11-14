@@ -1,17 +1,14 @@
 """
-Streamlit dashboard for the ML Trading System with authentication.
+Streamlit dashboard for the ML Trading System.
 Provides real-time monitoring, visualization, and control interface.
 """
 
 import streamlit as st
-import streamlit_authenticator as stauth
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import sys
 from pathlib import Path
-import yaml
-from yaml.loader import SafeLoader
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -39,86 +36,12 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ==================== Authentication ====================
-
-# Load authentication config
-auth_config_path = Path(__file__).parent / "auth_config.yaml"
-
-if not auth_config_path.exists():
-    # Create default config if it doesn't exist
-    default_config = {
-        "credentials": {
-            "usernames": {
-                "admin": {
-                    "name": "Administrator",
-                    "password": "$2b$12$8VqXYz3KGZvBH5YqE6xfF.Yn5qJZL9YK8p9JhKqJ8FvN5Z6xYqE6x",  # hashed "admin123"
-                }
-            }
-        },
-        "cookie": {
-            "expiry_days": 30,
-            "key": "trading_system_auth_key",
-            "name": "trading_system_cookie",
-        },
-        "preauthorized": {"emails": []},
-    }
-
-    with open(auth_config_path, "w") as file:
-        yaml.dump(default_config, file, default_flow_style=False)
-
-    st.warning("""
-    ⚠️ Default authentication config created!
-
-    **Default credentials:**
-    - Username: `admin`
-    - Password: `admin123`
-
-    **IMPORTANT**: Change the password in `ui/auth_config.yaml` for production use!
-
-    To generate a new hashed password, use:
-    ```python
-    import streamlit_authenticator as stauth
-    hashed = stauth.Hasher(['your_password']).generate()
-    ```
-    """)
-
-# Load config
-with open(auth_config_path) as file:
-    config = yaml.load(file, Loader=SafeLoader)
-
-# Create authenticator
-authenticator = stauth.Authenticate(
-    config["credentials"],
-    config["cookie"]["name"],
-    config["cookie"]["key"],
-    config["cookie"]["expiry_days"],
-)
-
-# Login widget
-name, authentication_status, username = authenticator.login("Login", "main")
-
-if authentication_status == False:
-    st.error("Username/password is incorrect")
-    st.stop()
-elif authentication_status == None:
-    st.warning("Please enter your username and password")
-    st.info("""
-    **Default credentials (first time):**
-    - Username: `admin`
-    - Password: `admin123`
-
-    Please change the password after first login!
-    """)
-    st.stop()
-
-# ==================== Authenticated Content ====================
+# ==================== Main Dashboard ====================
 
 # Sidebar
 with st.sidebar:
     st.title("📈 ML Trading System")
-    st.write(f"Welcome, **{name}**!")
-
-    authenticator.logout("Logout", "main")
+    st.write("**Real-time Trading Dashboard**")
 
     st.divider()
 
