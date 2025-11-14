@@ -131,10 +131,35 @@ class AlphaVantageClient:
         if not data:
             return None
 
-        # Parse time series data
-        time_series_key = f"Time Series FX ({interval})"
-        if time_series_key not in data:
-            logger.error(f"Expected key '{time_series_key}' not found in response")
+        # Debug: Log available keys
+        logger.info(f"API Response keys: {list(data.keys())}")
+
+        # Parse time series data - try multiple key formats
+        time_series_key = None
+        possible_keys = [
+            f"Time Series FX ({interval})",
+            "Time Series FX (60min)",
+            "Time Series FX (Daily)",
+            "Time Series (Digital Currency Intraday)",
+        ]
+
+        for key in possible_keys:
+            if key in data:
+                time_series_key = key
+                logger.info(f"Found time series data with key: {key}")
+                break
+
+        # If no match, try any key that contains "Time Series"
+        if not time_series_key:
+            for key in data.keys():
+                if "Time Series" in key:
+                    time_series_key = key
+                    logger.warning(f"Using fallback key: {key}")
+                    break
+
+        if not time_series_key:
+            logger.error(f"No time series data found. Available keys: {list(data.keys())}")
+            logger.error(f"Full response: {data}")
             return None
 
         time_series = data[time_series_key]

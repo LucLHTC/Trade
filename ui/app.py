@@ -9,6 +9,7 @@ import numpy as np
 from datetime import datetime, timedelta
 import sys
 from pathlib import Path
+import requests
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -547,13 +548,82 @@ elif page == "⚙️ Settings":
 
     st.header("Actions")
 
-    if st.button("Clear Cache"):
+    st.subheader("1. Data Collection")
+    col1, col2 = st.columns(2)
+
+    with col1:
+        days = st.number_input("Days of data", min_value=1, max_value=365, value=90)
+
+    with col2:
+        st.write("")  # Spacing
+        st.write("")  # Spacing
+        if st.button("🔄 Collect EUR/USD Data", type="primary"):
+            with st.spinner(f"Collecting {days} days of data..."):
+                try:
+                    # Call API endpoint or run directly
+                    from src.data_collection.forex import ForexCollector
+                    collector = ForexCollector()
+                    collector.fetch_and_store("EURUSD", days=days)
+                    st.success(f"✅ Data collection complete! Collected {days} days.")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"❌ Data collection failed: {e}")
+                    logger.error(f"Data collection error: {e}")
+
+    st.divider()
+
+    st.subheader("2. Feature Engineering")
+    if st.button("⚙️ Generate Features", type="primary"):
+        with st.spinner("Generating technical features..."):
+            try:
+                from src.features.manager import FeatureManager
+                manager = FeatureManager()
+                manager.generate_features_from_candles("EURUSD")
+                st.success("✅ Features generated successfully!")
+                st.rerun()
+            except Exception as e:
+                st.error(f"❌ Feature generation failed: {e}")
+                logger.error(f"Feature generation error: {e}")
+
+    st.divider()
+
+    st.subheader("3. Model Training")
+    if st.button("🤖 Train ML Model", type="primary"):
+        with st.spinner("Training ensemble model (this may take 10-15 minutes)..."):
+            try:
+                from src.labeling.manager import LabelManager
+                from src.training.trainer import ModelTrainer
+
+                # Generate labels first
+                label_mgr = LabelManager()
+                label_mgr.generate_and_save("EURUSD")
+
+                # Train model
+                trainer = ModelTrainer()
+                trainer.train_and_save("EURUSD")
+
+                st.success("✅ Model training complete!")
+                st.rerun()
+            except Exception as e:
+                st.error(f"❌ Model training failed: {e}")
+                logger.error(f"Model training error: {e}")
+
+    st.divider()
+
+    st.subheader("4. System Maintenance")
+    if st.button("🗑️ Clear Cache"):
         st.cache_data.clear()
-        st.success("Cache cleared!")
+        st.success("✅ Cache cleared!")
 
     st.info("""
     **Scheduler Status:** The scheduler runs automatically in the background.
     Check docker logs for `trading_scheduler` container to see activity.
+
+    **Quick Start Guide:**
+    1. Click "Collect EUR/USD Data" to fetch historical data
+    2. Click "Generate Features" to calculate technical indicators
+    3. Click "Train ML Model" to train the trading model
+    4. View results in Overview and Paper Trading tabs
     """)
 
 # Footer
